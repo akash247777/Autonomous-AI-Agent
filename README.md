@@ -3,7 +3,13 @@
 This project is a web-based autonomous AI agent system designed to break down complex user goals into actionable, multi-step execution plans. The agent utilizes a variety of tools to execute these steps, manages dependencies between tasks, runs independent tasks in parallel, and provides real-time progress updates to the user.
 
 
-## Demo
+## Demo '🎥📽🎞
+
+
+
+https://github.com/user-attachments/assets/8ae4f01a-993e-4ccf-9179-83fe7a74c251
+
+
 <img width="1903" height="990" alt="AT3" src="https://github.com/user-attachments/assets/ca84c582-1e74-4eda-9d19-2155f7e96c09" />
 <img width="1338" height="912" alt="AT4" src="https://github.com/user-attachments/assets/ce170cf2-e72c-4f9a-b9e9-8beafae7ca9f" />
 <img width="1888" height="917" alt="AT!" src="https://github.com/user-attachments/assets/2d441808-ff77-4b33-9e38-27545c7dd126" />
