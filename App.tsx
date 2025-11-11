@@ -85,6 +85,19 @@ const App: React.FC = () => {
             {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
           </div>
 
+          {agentState && (
+            <div className="bg-brand-surface rounded-xl shadow-2xl p-6">
+              <h2 className="text-lg font-bold text-brand-accent mb-3 border-b border-brand-primary pb-2">
+                Current Goal
+              </h2>
+              <blockquote className="border-l-4 border-brand-accent pl-4">
+                <p className="text-brand-text text-lg italic">
+                  {agentState.goal}
+                </p>
+              </blockquote>
+            </div>
+          )}
+
           {isLoading && !hasPlan && (
             <div className="text-center p-6 bg-brand-surface rounded-xl shadow-lg">
               <p className="text-brand-accent animate-pulse-fast">Generating execution plan...</p>
