@@ -2,6 +2,15 @@
 
 This project is a web-based autonomous AI agent system designed to break down complex user goals into actionable, multi-step execution plans. The agent utilizes a variety of tools to execute these steps, manages dependencies between tasks, runs independent tasks in parallel, and provides real-time progress updates to the user.
 
+
+## Demo
+<img width="1903" height="990" alt="AT3" src="https://github.com/user-attachments/assets/ca84c582-1e74-4eda-9d19-2155f7e96c09" />
+<img width="1338" height="912" alt="AT4" src="https://github.com/user-attachments/assets/ce170cf2-e72c-4f9a-b9e9-8beafae7ca9f" />
+<img width="1888" height="917" alt="AT!" src="https://github.com/user-attachments/assets/2d441808-ff77-4b33-9e38-27545c7dd126" />
+<img width="1886" height="952" alt="AT" src="https://github.com/user-attachments/assets/82f49d89-be6b-4641-b56c-e9a98c4bde43" />
+<img width="1910" height="935" alt="AT2" src="https://github.com/user-attachments/assets/53248d0d-b954-4295-b039-73de67cc2b4e" />
+
+
 ## Core Features
 
 - **AI-Powered Planning**: Leverages the Google Gemini API to parse natural language goals and generate a structured JSON execution plan (a Directed Acyclic Graph of tasks).
@@ -79,3 +88,6 @@ This application is designed to run in a web environment where a Google Gemini A
     - Click "Start" to begin the process.
     - Watch as the agent generates a plan and executes it in real-time.
     - To start over, click the "Start New Goal" button that appears after a session starts.
+
+## Try it NOW
+- https://autonomous-ai-agent-564682446225.us-west1.run.app/
