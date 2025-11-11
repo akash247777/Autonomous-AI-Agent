@@ -96,4 +96,4 @@ This application is designed to run in a web environment where a Google Gemini A
     - To start over, click the "Start New Goal" button that appears after a session starts.
 
 ## Try it NOW
-- https://autonomous-ai-agent-564682446225.us-west1.run.app/
+- [https://autonomous-ai-agent-564682446225.us-west1.run.app/](https://autonomous-ai-agent-564682446225.us-west1.run.app/)
