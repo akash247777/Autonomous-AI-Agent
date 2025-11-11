@@ -56,7 +56,7 @@ export const generatePlan = async (goal: string): Promise<ExecutionPlan> => {
   - 'getCurrentLocation': Use to get the user's current GPS coordinates. Returns { latitude, longitude }. Args: {}.
   - 'getLocationCoordinates': Use to find the geographic coordinates for a named place. Args: { "locationName": "e.g., Mysuru" }. Returns { latitude, longitude }.
   - 'getWeather': Use to get the weather for specific coordinates. The coordinates MUST be provided by a dependency ('getCurrentLocation' or 'getLocationCoordinates'). Args: {}.
-  - 'summarize': Use to summarize a large block of text. Args: { "query": "text to summarize" }.
+  - 'summarize': Use to summarize text. If 'args.query' is provided, it summarizes that text (placeholders like {{task1}} are supported). If 'args.query' is omitted, it automatically synthesizes and summarizes the results of all its dependencies.
 
   Rules:
   1.  **Weather for Current Location**: If the goal is about weather at the user's current location (e.g., "weather where I am"), you MUST create two tasks:

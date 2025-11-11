@@ -12,15 +12,29 @@ const executeWebSearch = async (args: { query: string }, dependencies: Record<st
   return performWebSearch(query);
 };
 
-const executeSummarize = async (args: { query: string }, dependencies: Record<string, any>) => {
-  let textToSummarize = args.query;
-  // Replace placeholders like {{task1}} with actual results
-  for (const depId in dependencies) {
-    const placeholder = `{{${depId}}}`;
-    if (textToSummarize.includes(placeholder)) {
+const executeSummarize = async (args: { query?: string }, dependencies: Record<string, any>) => {
+  let textToSummarize = args.query || '';
+
+  // If there's no initial query, the intention is to summarize/synthesize the dependencies.
+  if (!args.query) {
+    textToSummarize = Object.entries(dependencies)
+      .map(([key, value]) => `Result from ${key}: ${JSON.stringify(value)}`)
+      .join('\n\n');
+  } else {
+    // If there IS a query, it might contain placeholders for dependency results.
+    for (const depId in dependencies) {
+      const placeholder = `{{${depId}}}`;
+      if (textToSummarize.includes(placeholder)) {
         textToSummarize = textToSummarize.replace(new RegExp(placeholder, 'g'), JSON.stringify(dependencies[depId]));
+      }
     }
   }
+
+  if (!textToSummarize.trim()) {
+    // This can happen if summarize is called with no args and no dependencies.
+    throw new Error("Summarize tool was called without any text to summarize from arguments or dependencies.");
+  }
+
   return performSummarization(textToSummarize);
 };
 
@@ -113,7 +127,7 @@ export const executeTool = async (
     case 'getWeather':
       return executeGetWeather(args as { latitude?: number, longitude?: number }, dependencies);
     case 'summarize':
-      return executeSummarize(args as { query: string }, dependencies);
+      return executeSummarize(args as { query?: string }, dependencies);
     case 'getCurrentLocation':
       return executeGetCurrentLocation();
     case 'getLocationCoordinates':
