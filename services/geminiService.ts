@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from '@google/genai';
 import { ExecutionPlan, Task, TaskResult, TaskStatus } from '../types';
 
@@ -21,16 +20,18 @@ const planSchema = {
           description: { type: Type.STRING, description: "A short, user-facing description of what this task does." },
           tool: {
             type: Type.STRING,
-            enum: ['webSearch', 'calculate', 'getWeather', 'summarize'],
+            enum: ['webSearch', 'calculate', 'getWeather', 'summarize', 'getCurrentLocation', 'getLocationCoordinates'],
             description: "The name of the tool to be used for this task."
           },
           args: {
             type: Type.OBJECT,
-            description: "An object containing arguments for the tool. For 'webSearch' and 'summarize', use a 'query' key. For 'calculate', use an 'expression' key. For 'getWeather', use a 'location' key.",
+            description: "An object containing arguments for the tool. See tool documentation for required args.",
             properties: {
                 query: { type: Type.STRING },
                 expression: { type: Type.STRING },
-                location: { type: Type.STRING }
+                latitude: { type: Type.NUMBER },
+                longitude: { type: Type.NUMBER },
+                locationName: { type: Type.STRING },
             }
           },
           dependsOn: {
@@ -50,17 +51,23 @@ export const generatePlan = async (goal: string): Promise<ExecutionPlan> => {
   const systemInstruction = `You are an expert AI planner. Your job is to break down a user's goal into a series of tasks that can be executed by a machine.
 
   You have access to the following tools:
-  - 'webSearch': Use to find information on the internet. Args: { "query": "your search query" }.
+  - 'webSearch': Use to find general information on the internet. Args: { "query": "your search query" }.
   - 'calculate': Use for mathematical calculations. Args: { "expression": "e.g., (100 * 1.05^5) - 100" }.
-  - 'getWeather': Use to get the weather for a specific location. Args: { "location": "e.g., Tokyo, Japan" }.
+  - 'getCurrentLocation': Use to get the user's current GPS coordinates. Returns { latitude, longitude }. Args: {}.
+  - 'getLocationCoordinates': Use to find the geographic coordinates for a named place. Args: { "locationName": "e.g., Mysuru" }. Returns { latitude, longitude }.
+  - 'getWeather': Use to get the weather for specific coordinates. The coordinates MUST be provided by a dependency ('getCurrentLocation' or 'getLocationCoordinates'). Args: {}.
   - 'summarize': Use to summarize a large block of text. Args: { "query": "text to summarize" }.
 
   Rules:
-  1.  Create a step-by-step plan as a JSON object.
-  2.  Each task must have a unique 'id' (e.g., "task1", "task2").
-  3.  Define dependencies ('dependsOn') correctly. A task can only depend on tasks that come before it. If a task needs data from another, list its ID in 'dependsOn'. The output of the dependency will be available. You can reference dependency results in args using the format '{{task_id}}', e.g., { "query": "summarize {{task1}}" }.
-  4.  Keep descriptions concise and clear.
-  5.  Ensure the plan logically flows to achieve the user's final goal.
+  1.  **Weather for Current Location**: If the goal is about weather at the user's current location (e.g., "weather where I am"), you MUST create two tasks:
+      a. A 'getCurrentLocation' task.
+      b. A 'getWeather' task that depends on the first one. Its 'args' MUST be empty: {}.
+  2.  **Weather for Named Location**: If the goal is about weather for a *named location* (e.g., "weather in Paris"), you MUST create two tasks:
+      a. A 'getLocationCoordinates' task with the 'locationName' argument.
+      b. A 'getWeather' task that depends on the first one. Its 'args' MUST be empty: {}.
+  3.  Create a step-by-step plan as a JSON object with unique 'id's.
+  4.  Define dependencies using 'dependsOn'. If a task needs another's output, list the dependency ID.
+  5.  For tasks that consume the entire output of a dependency (like getWeather), their 'args' object should be empty ({}). The system handles passing the result automatically.
   
   User Goal: "${goal}"
   
@@ -116,7 +123,7 @@ export const generateFinalSummary = async (goal: string, results: TaskResult[]):
 export const performWebSearch = async (query: string): Promise<any> => {
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: `Please search for: ${query}`,
+        contents: `Please perform a web search for: ${query}`,
         config: {
             tools: [{ googleSearch: {} }],
         },
@@ -135,4 +142,28 @@ export const performSummarization = async (text: string): Promise<string> => {
         contents: prompt,
      });
      return response.text;
+};
+
+export const performGetLocationCoordinates = async (locationName: string): Promise<{ latitude: number; longitude: number }> => {
+  const coordinateSchema = {
+    type: Type.OBJECT,
+    properties: {
+      latitude: { type: Type.NUMBER },
+      longitude: { type: Type.NUMBER },
+    },
+    required: ['latitude', 'longitude'],
+  };
+  
+  const prompt = `Find the latitude and longitude for the following location: "${locationName}". Return only the JSON object with the coordinates.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json',
+      responseSchema: coordinateSchema,
+    },
+  });
+
+  return JSON.parse(response.text);
 };

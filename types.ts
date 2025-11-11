@@ -1,4 +1,3 @@
-
 export enum TaskStatus {
   Queued = 'queued',
   Running = 'running',
@@ -10,7 +9,7 @@ export enum TaskStatus {
 export interface Task {
   id: string;
   description: string;
-  tool: 'webSearch' | 'calculate' | 'getWeather' | 'summarize';
+  tool: 'webSearch' | 'calculate' | 'getWeather' | 'summarize' | 'getCurrentLocation' | 'getLocationCoordinates';
   args: Record<string, any>;
   dependsOn: string[];
   status: TaskStatus;

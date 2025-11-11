@@ -12,7 +12,7 @@ const GoalInput: React.FC<GoalInputProps> = ({ onSubmit, isLoading, hasActiveSes
 
   const exampleGoals = [
     "Research the top 3 AI startups funded in 2024, find their funding amounts, and create a summary.",
-    "Find the weather in Bengaluru today and tell me if it will rain.",
+    "What's the weather like right now where I am?",
     "What were the key announcements from Apple's latest event? Summarize them.",
   ];
 

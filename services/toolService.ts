@@ -1,4 +1,4 @@
-import { performWebSearch, performSummarization } from './geminiService';
+import { performWebSearch, performSummarization, performGetLocationCoordinates } from './geminiService';
 
 const executeWebSearch = async (args: { query: string }, dependencies: Record<string, any>) => {
   let query = args.query;
@@ -44,32 +44,64 @@ const executeCalculation = async (args: { expression: string }, dependencies: Re
   }
 };
 
-const executeGetWeather = async (args: { location: string }) => {
-  const { location } = args;
-  // This is a mock tool. In a real scenario, this would call a weather API.
-  const mockWeatherData: Record<string, { tempC: number; condition: string }> = {
-    'tokyo': { tempC: 25, condition: 'Sunny with some clouds' },
-    'london': { tempC: 15, condition: 'Cloudy with a chance of rain' },
-    'paris': { tempC: 18, condition: 'Partly cloudy' },
-    'bengaluru': { tempC: 28, condition: 'Hot and humid with a chance of afternoon thunderstorms' },
-    'bangalore': { tempC: 28, condition: 'Hot and humid with a chance of afternoon thunderstorms' }, // alias
-    'new york': { tempC: 22, condition: 'Clear skies' },
-  };
-  
-  const lowerCaseLocation = location.toLowerCase();
-  const foundCity = Object.keys(mockWeatherData).find(city => lowerCaseLocation.includes(city));
+const executeGetCurrentLocation = async (): Promise<{ latitude: number; longitude: number }> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      return reject(new Error("Geolocation is not supported by this browser."));
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (error) => {
+        reject(new Error(`Could not get location: ${error.message}`));
+      }
+    );
+  });
+};
 
-  if (foundCity) {
-    const data = mockWeatherData[foundCity];
-    const tempF = (data.tempC * 9/5) + 32;
-    return `The weather in ${location} is ${data.condition} with a temperature of ${data.tempC}°C (${tempF.toFixed(1)}°F).`;
+const executeGetLocationCoordinates = async (args: { locationName: string }): Promise<{ latitude: number; longitude: number }> => {
+    if (!args.locationName) {
+        throw new Error("Location name is required for getLocationCoordinates tool.");
+    }
+    return performGetLocationCoordinates(args.locationName);
+};
+
+
+const executeGetWeather = async (args: { latitude?: number; longitude?: number }, dependencies: Record<string, any>) => {
+  let { latitude, longitude } = args;
+
+  // If lat/lon are not in args, they must come from a dependency.
+  if (latitude == null || longitude == null) {
+    let locationFound = false;
+    for (const depId in dependencies) {
+      const depResult = dependencies[depId];
+      // Check if the dependency result is the location object we need
+      if (depResult && typeof depResult.latitude === 'number' && typeof depResult.longitude === 'number') {
+        latitude = depResult.latitude;
+        longitude = depResult.longitude;
+        locationFound = true;
+        break; // Found it, no need to check other dependencies
+      }
+    }
+
+    if (!locationFound) {
+      throw new Error("Could not find latitude and longitude from arguments or dependencies for the getWeather tool.");
+    }
   }
-  return `Could not find weather data for ${location}.`;
+  
+  const query = `current weather at latitude ${latitude} longitude ${longitude}`;
+  console.log(`Using web search to find weather with query: "${query}"`);
+  // Use the existing web search tool to get the weather.
+  return performWebSearch(query);
 };
 
 
 export const executeTool = async (
-  toolName: 'webSearch' | 'calculate' | 'getWeather' | 'summarize',
+  toolName: 'webSearch' | 'calculate' | 'getWeather' | 'summarize' | 'getCurrentLocation' | 'getLocationCoordinates',
   args: Record<string, any>,
   dependencies: Record<string, any>
 ): Promise<any> => {
@@ -79,9 +111,13 @@ export const executeTool = async (
     case 'calculate':
       return executeCalculation(args as { expression: string }, dependencies);
     case 'getWeather':
-      return executeGetWeather(args as { location: string });
+      return executeGetWeather(args as { latitude?: number, longitude?: number }, dependencies);
     case 'summarize':
       return executeSummarize(args as { query: string }, dependencies);
+    case 'getCurrentLocation':
+      return executeGetCurrentLocation();
+    case 'getLocationCoordinates':
+        return executeGetLocationCoordinates(args as { locationName: string });
     default:
       throw new Error(`Tool "${toolName}" not found.`);
   }
