@@ -79,3 +79,7 @@ This application is designed to run in a web environment where a Google Gemini A
     - Click "Start" to begin the process.
     - Watch as the agent generates a plan and executes it in real-time.
     - To start over, click the "Start New Goal" button that appears after a session starts.
+
+## Try it now
+- https://autonomous-ai-agent-564682446225.us-west1.run.app/
+
