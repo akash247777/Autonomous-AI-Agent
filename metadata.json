@@ -1,0 +1,5 @@
+{
+  "name": "Autonomous AI Agent",
+  "description": "An autonomous AI agent system that can break down complex user goals into actionable steps, execute them using various tools, and provide real-time progress updates.",
+  "requestFramePermissions": []
+}
