@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface GoalInputProps {
@@ -13,7 +12,7 @@ const GoalInput: React.FC<GoalInputProps> = ({ onSubmit, isLoading, hasActiveSes
 
   const exampleGoals = [
     "Research the top 3 AI startups funded in 2024, find their funding amounts, and create a summary.",
-    "Find the weather in Tokyo tomorrow, convert the temperature to Fahrenheit, and suggest 3 outdoor activities.",
+    "Find the weather in Bengaluru today and tell me if it will rain.",
     "What were the key announcements from Apple's latest event? Summarize them.",
   ];
 

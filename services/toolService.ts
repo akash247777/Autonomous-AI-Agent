@@ -51,6 +51,9 @@ const executeGetWeather = async (args: { location: string }) => {
     'tokyo': { tempC: 25, condition: 'Sunny with some clouds' },
     'london': { tempC: 15, condition: 'Cloudy with a chance of rain' },
     'paris': { tempC: 18, condition: 'Partly cloudy' },
+    'bengaluru': { tempC: 28, condition: 'Hot and humid with a chance of afternoon thunderstorms' },
+    'bangalore': { tempC: 28, condition: 'Hot and humid with a chance of afternoon thunderstorms' }, // alias
+    'new york': { tempC: 22, condition: 'Clear skies' },
   };
   
   const lowerCaseLocation = location.toLowerCase();
